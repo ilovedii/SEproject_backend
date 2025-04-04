@@ -28,7 +28,7 @@ initializeApp({
 const DATABASE = getFirestore();
 const AUTH = getAuth();
 
-function checkEmail(password){
+function checkPassword(password){
 	const isUpper = /[A-Z]/.test(password);
 	const isLower = /[a-z]/.test(password);
 	const isNumber = /[0-9]/.test(password);
@@ -41,7 +41,7 @@ async function storeUser(){
 	const email = await register('Email: ');
 	const password = await register('Password: ');
 	
-	if(!checkEmail(password)){
+	if(!checkPassword(password)){
 		console.log("Invalid password");
 		rl.close()
 		return;
