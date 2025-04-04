@@ -58,7 +58,7 @@ async function storeUser(){
 			username: name,
 			email: user.email,
 			bio: bio,
-			rofile_img: null,
+			profile_img: null,
 			url: ''
 		});
 
