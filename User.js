@@ -37,6 +37,17 @@ function checkPassword(password){
 	return isUpper && isLower && isNumber && enoughLength;
 }
 
+async function deleteUser(uid){
+	try{
+		await DATABASE.collection('users').doc(uid).delete();
+		await AUTH.deleteUser(uid);
+		console.log(`${uid} has been deleted.`);
+	} 
+	catch (error) {
+		console.error(`Fail to delete ${uid}: ${error.message}`);
+	}
+}
+
 async function storeUser(){
 	const email = await register('Email: ');
 	const password = await register('Password: ');
@@ -73,4 +84,11 @@ async function storeUser(){
 	}
 }
 
-storeUser()
+const args = process.argv.slice(2);
+
+if (args[0] == `delete`){
+	const uid = args[1];
+	deleteUser(uid).then(() => rl.close());
+}else{
+	storeUser();
+}
