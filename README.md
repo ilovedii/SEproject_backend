@@ -1,6 +1,6 @@
 # SEproject_backend
 
-*Create User:*
+**Create User:** 
 node User.js
 
 下面會自動跑出  
@@ -10,5 +10,5 @@ Please enter your username:
 Please enter your bio:  
 
 
-*Delete User:*
+**Delete User:** 
 node User.js delete 'uid'
