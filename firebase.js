@@ -1,3 +1,7 @@
+//目前這個檔案完全不需要
+//適用給前端直接操作firebase sdk用的
+//但是先留著吧 搞不好未來需要
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";

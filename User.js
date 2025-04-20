@@ -1,32 +1,5 @@
-import { initializeApp, cert } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
-import {readFileSync} from "fs";
-const serviceAccount = JSON.parse(readFileSync("./accountKey.json", "utf-8"));
-
-//先用terminal try
-import readline from 'readline';
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-function register(query){
-	return new Promise(resolve => rl.question(query, answer => resolve(answer)));
-}
-
-function info(query){
-	return new Promise(resolve => rl.question(query, answer => resolve(answer)));
-}
-
-
-//啟動firebase SDK
-initializeApp({
-	credential: cert(serviceAccount), //啟動金鑰
-})
-
-const DATABASE = getFirestore();
-const AUTH = getAuth();
+import {DATABASE, AUTH} from './config.js';
+import {rl, terminal} from './terminal.js';
 
 function checkPassword(password){
 	const isUpper = /[A-Z]/.test(password);
@@ -37,7 +10,8 @@ function checkPassword(password){
 	return isUpper && isLower && isNumber && enoughLength;
 }
 
-async function deleteUser(uid){
+async function deleteUser(){
+	const uid = await terminal("Enter user_id to delete: ");
 	try{
 		await DATABASE.collection('users').doc(uid).delete();
 		await AUTH.deleteUser(uid);
@@ -49,8 +23,8 @@ async function deleteUser(uid){
 }
 
 async function storeUser(){
-	const email = await register('Email: ');
-	const password = await register('Password: ');
+	const email = await terminal('Email: ');
+	const password = await terminal('Password: ');
 	
 	if(!checkPassword(password)){
 		console.log("Invalid password");
@@ -62,20 +36,19 @@ async function storeUser(){
 		// create account
 		const user = await AUTH.createUser({email,password});
 
-		const name = await info("Please enter your username: ");
-    	const bio = await info("Please enter your bio: ");
-
+		const name = await terminal("Please enter your username: ");
+    	const bio = await terminal("Please enter your bio: ");
+		const url = await terminal("Please enter your url: ")
 		await DATABASE.collection('users').doc(user.uid).set({
 			username: name,
 			email: user.email,
 			bio: bio,
 			profile_img: null,
-			url: ''
+			url: url
 		});
 
 		console.log('User successfully added');
 	}
-
 	catch(error){
 		console.error('Invalid User', error.message);
 	}
@@ -83,12 +56,59 @@ async function storeUser(){
 		rl.close();
 	}
 }
+async function updateUser(){
+	const uid = await terminal("Enter user_id to update: ");
+	
+	if (uid.trim() === "") {
+		console.log("User ID cannot be empty.");
+		rl.close();
+		return;
+	}
+	
+	//防呆
+	const userDoc = await DATABASE.collection('users').doc(uid).get();
+	if (!userDoc.exists) {
+		console.log(`User with ID "${uid}" does not exist.`);
+		rl.close();
+		return;
+	}
+
+	const newName = await terminal("New name (leave blank to skip): ");
+	const newBio = await terminal("New bio (leave blank to skip): ");
+	const newUrl = await terminal("New profile URL (leave blank to skip): ");
+
+	let updateData = {};
+	if (newName.trim() !== "") updateData.username = newName;
+	if (newBio.trim() !== "") updateData.bio = newBio;
+	if (newUrl.trim() !== "") updateData.url = newUrl;
+
+	if (Object.keys(updateData).length === 0) {
+	console.log("No update data provided.");
+	rl.close();
+	return;
+}
+
+
+	try{
+		await DATABASE.collection('users').doc(uid).update(updateData);
+		console.log(`User updated.`)
+		rl.close();
+	} catch(err) {
+		console.error("Updated faild: ",err.message);
+		rl.close();
+	}
+
+}
 
 const args = process.argv.slice(2);
-
-if (args[0] == `delete`){
-	const uid = args[1];
-	deleteUser(uid).then(() => rl.close());
-}else{
+if (args[0] === "create") {
 	storeUser();
+} else if (args[0] === "delete") {
+	deleteUser();
+} else if (args[0] === "update") {
+	updateUser();
+} else {
+	console.log("請改成輸入: node User.js [create|delete|update]");
+	rl.close();
 }
+
