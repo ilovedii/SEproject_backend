@@ -1,6 +1,6 @@
 # SEproject_backend
 
-**檔案在export裡面:**  
+**檔案在export裡面**  
 *要npm 然後push不要上傳node_modual*
 
 
