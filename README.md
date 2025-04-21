@@ -1,14 +1,23 @@
 # SEproject_backend
 
-**Create User:** 
-node User.js
-
-下面會自動跑出  
-Email:  
-Password:  
-Please enter your username:  
-Please enter your bio:  
+**檔案在export裡面:**
+*要npm 然後push不要上傳node_modual*
 
 
-**Delete User:** 
-node User.js delete 'uid'
+```
+.
+├── export                # 總檔案
+│   ├── .env.local        # 環境變數(存金鑰) 
+├── firebase          
+│   ├── TeamService.ts
+│   ├── UserService.ts
+│   ├── accountkey.json   #(目前無用)
+│   ├── config.ts         #firebase 設定               
+├── api                    #api route
+│   ├── team
+│   │   ├── create.ts
+│   │   ├── delete.ts
+│   │   ├── query.ts
+│   │   ├── update.ts
+│   ├── user
+
